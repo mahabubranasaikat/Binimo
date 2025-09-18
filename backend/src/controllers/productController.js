@@ -8,6 +8,12 @@ exports.getProducts = (req, res) => {
 };
 
 exports.createProduct = (req, res) => {
+    // Handle multiple images
+    let imageUrls = [];
+    if (req.files && req.files.length > 0) {
+        imageUrls = req.files.map(file => `/uploads/${file.filename}`);
+    }
+
     const productData = {
         user_id: req.user.id,
         title: req.body.title,
@@ -15,7 +21,8 @@ exports.createProduct = (req, res) => {
         price: req.body.price,
         category: req.body.category,
         location: req.body.location,
-        image_url: req.file ? req.file.path : null
+        image_url: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null,
+        condition: req.body.condition
     };
 
     Product.create(productData, (err, result) => {
