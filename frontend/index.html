@@ -28,15 +28,15 @@
                         <option value="bn">BN</option>
                     </select>
                     <button class="btn btn-success me-2" id="post-ad">Post Free Ad</button>
-                    <div class="dropdown d-inline-block">
-                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
-                            <i class="fas fa-user"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" id="login">Login</a></li>
-                            <li><a class="dropdown-item" href="#" id="signup">Sign Up</a></li>
-                        </ul>
-                    </div>
+                     <div class="dropdown d-inline-block">
+                         <button class="btn btn-outline-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+                             <i class="fas fa-user"></i> <span id="user-name">Guest</span>
+                         </button>
+                         <ul class="dropdown-menu" id="user-menu-items">
+                             <li><a class="dropdown-item" href="#" id="login">Login</a></li>
+                             <li><a class="dropdown-item" href="#" id="signup">Sign Up</a></li>
+                         </ul>
+                     </div>
                 </div>
             </div>
         </div>
@@ -110,10 +110,11 @@
                 <h5>Categories</h5>
                 <div id="category-list"></div>
                 <h5 class="mt-4">Filters</h5>
-                <div class="mb-3">
-                    <label for="location" class="form-label">Location</label>
-                    <input type="text" id="location" class="form-control" placeholder="Enter location">
-                </div>
+                 <div class="mb-3">
+                     <label for="location" class="form-label">Location</label>
+                     <input type="text" id="location" class="form-control" placeholder="Enter location">
+                     <button class="btn btn-outline-secondary btn-sm mt-1" id="get-location">Use My Location</button>
+                 </div>
                 <div class="mb-3">
                     <label for="min-price" class="form-label">Min Price</label>
                     <input type="number" id="min-price" class="form-control">
@@ -122,15 +123,25 @@
                     <label for="max-price" class="form-label">Max Price</label>
                     <input type="number" id="max-price" class="form-control">
                 </div>
-                <div class="mb-3">
-                    <label for="condition" class="form-label">Condition</label>
-                    <select id="condition" class="form-select">
-                        <option value="">Any</option>
-                        <option value="new">New</option>
-                        <option value="used">Used</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" id="apply-filters">Apply Filters</button>
+                 <div class="mb-3">
+                     <label for="condition" class="form-label">Condition</label>
+                     <select id="condition" class="form-select">
+                         <option value="">Any</option>
+                         <option value="new">New</option>
+                         <option value="used">Used</option>
+                     </select>
+                 </div>
+                 <div class="mb-3">
+                     <label for="sort-by" class="form-label">Sort By</label>
+                     <select id="sort-by" class="form-select">
+                         <option value="">Default</option>
+                         <option value="price-asc">Price: Low to High</option>
+                         <option value="price-desc">Price: High to Low</option>
+                         <option value="date-desc">Newest First</option>
+                         <option value="category">Category</option>
+                     </select>
+                 </div>
+                 <button class="btn btn-primary" id="apply-filters">Apply Filters</button>
             </aside>
             <section class="col-md-6">
                 <h2>Available Products</h2>
@@ -302,6 +313,54 @@
                             </form>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Modal -->
+    <div class="modal fade" id="messagesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Messages</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Your messages will appear here.</p>
+                    <div id="messages-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Ads Modal -->
+    <div class="modal fade" id="myAdsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">My Ads</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Your posted ads will appear here.</p>
+                    <div id="my-ads-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div class="modal fade" id="adminModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Admin Dashboard</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Admin controls: Approve products, handle reports.</p>
+                    <div id="admin-content"></div>
                 </div>
             </div>
         </div>

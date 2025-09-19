@@ -47,18 +47,52 @@ function loadProducts(products, append = false) {
         }
         const imageUrl = images.length > 0 ? images[0] : 'https://via.placeholder.com/250x150';
 
+        let imageHTML = '';
+        if (images.length > 1) {
+            const carouselId = `carousel-${product.id}`;
+            imageHTML = `
+                <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        ${images.map((img, index) => `
+                            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                <img src="${img}" class="d-block w-100" alt="${product.title}" style="height: 200px; object-fit: cover;">
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            `;
+        } else {
+            imageHTML = `<img src="${imageUrl}" class="card-img-top" alt="${product.title}" style="height: 200px; object-fit: cover;">`;
+        }
+
         const productDiv = document.createElement('div');
         productDiv.className = 'col-md-4 mb-4';
         productDiv.innerHTML = `
             <div class="card h-100">
-                <img src="${imageUrl}" class="card-img-top" alt="${product.title}" style="height: 200px; object-fit: cover;">
+                ${imageHTML}
                 <div class="card-body">
-                    <h5 class="card-title">${product.title}</h5>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">${product.title}</h5>
+                        <small class="text-muted">ID: ${product.id}</small>
+                    </div>
                     <p class="card-text">${product.description.substring(0, 100)}${product.description.length > 100 ? '...' : ''}</p>
-                    <p class="text-success fw-bold">$${product.price}</p>
-                    <p class="text-muted">${product.location}</p>
-                    <span class="badge bg-${product.condition === 'new' ? 'success' : 'secondary'}">${product.condition}</span>
-                    ${images.length > 1 ? `<small class="text-muted">${images.length} photos</small>` : ''}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <p class="text-success fw-bold mb-0">$${product.price}</p>
+                        <span class="badge bg-primary">${product.category}</span>
+                    </div>
+                    <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i>${product.location}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-${product.condition === 'new' ? 'success' : 'secondary'}">${product.condition}</span>
+                        ${images.length > 1 ? `<small class="text-muted">${images.length} photos</small>` : ''}
+                    </div>
                 </div>
             </div>
         `;
@@ -170,6 +204,31 @@ function loadCategories() {
 document.getElementById('search').addEventListener('input', () => filterProducts());
 document.querySelector('button[type="button"]').addEventListener('click', () => filterProducts());
 document.getElementById('apply-filters').addEventListener('click', () => filterProducts());
+document.getElementById('sort-by').addEventListener('change', () => filterProducts());
+
+// Location geolocation
+document.getElementById('get-location').addEventListener('click', () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            try {
+                const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+                const data = await response.json();
+                const city = data.city || data.locality || 'Unknown Location';
+                document.getElementById('location').value = city;
+                filterProducts(); // Auto apply filter
+            } catch (error) {
+                console.error('Error getting location:', error);
+                alert('Unable to determine your location. Please enter manually.');
+            }
+        }, (error) => {
+            console.error('Geolocation error:', error);
+            alert('Location access denied. Please enter location manually.');
+        });
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+});
 
 function filterProducts(extraFilters = {}) {
     const searchTerm = document.getElementById('search').value.toLowerCase();
@@ -178,8 +237,9 @@ function filterProducts(extraFilters = {}) {
     const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     const condition = document.getElementById('condition').value;
     const category = extraFilters.category || '';
+    const sortBy = document.getElementById('sort-by').value;
 
-    const filtered = allProducts.filter(product => {
+    let filtered = allProducts.filter(product => {
         const matchesSearch = product.title.toLowerCase().includes(searchTerm) ||
                               product.description.toLowerCase().includes(searchTerm);
         const matchesLocation = !location || product.location.toLowerCase().includes(location);
@@ -188,6 +248,24 @@ function filterProducts(extraFilters = {}) {
         const matchesCategory = !category || product.category === category;
         return matchesSearch && matchesLocation && matchesPrice && matchesCondition && matchesCategory;
     });
+
+    // Sort the filtered results
+    if (sortBy) {
+        filtered.sort((a, b) => {
+            switch (sortBy) {
+                case 'price-asc':
+                    return a.price - b.price;
+                case 'price-desc':
+                    return b.price - a.price;
+                case 'date-desc':
+                    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                case 'category':
+                    return (a.category || '').localeCompare(b.category || '');
+                default:
+                    return 0;
+            }
+        });
+    }
 
     displayedProducts = 6; // Reset for new filter
     loadProducts(filtered.slice(0, displayedProducts));
@@ -201,8 +279,9 @@ function loadMoreProducts() {
     const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     const condition = document.getElementById('condition').value;
     const category = '';
+    const sortBy = document.getElementById('sort-by').value;
 
-    const filtered = allProducts.filter(product => {
+    let filtered = allProducts.filter(product => {
         const matchesSearch = product.title.toLowerCase().includes(searchTerm) ||
                               product.description.toLowerCase().includes(searchTerm);
         const matchesLocation = !location || product.location.toLowerCase().includes(location);
@@ -211,6 +290,24 @@ function loadMoreProducts() {
         const matchesCategory = !category || product.category === category;
         return matchesSearch && matchesLocation && matchesPrice && matchesCondition && matchesCategory;
     });
+
+    // Sort the filtered results
+    if (sortBy) {
+        filtered.sort((a, b) => {
+            switch (sortBy) {
+                case 'price-asc':
+                    return a.price - b.price;
+                case 'price-desc':
+                    return b.price - a.price;
+                case 'date-desc':
+                    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                case 'category':
+                    return (a.category || '').localeCompare(b.category || '');
+                default:
+                    return 0;
+            }
+        });
+    }
 
     loadProducts(filtered.slice(0, displayedProducts), true);
 }

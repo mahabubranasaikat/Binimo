@@ -24,7 +24,7 @@ CREATE TABLE products (
     category VARCHAR(50),
     location VARCHAR(100),
     image_url VARCHAR(255),
-    condition ENUM('new', 'used') DEFAULT 'used',
+    `condition` ENUM('new', 'used') DEFAULT 'used',
     status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

@@ -18,7 +18,7 @@ db.connect((err) => {
     console.log('Connected to MySQL');
 
     // Read and execute schema
-    const schemaPath = path.join(__dirname, 'database', 'schema.sql');
+    const schemaPath = path.join(__dirname, '../database/schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
 
     db.query(schema, (err, results) => {

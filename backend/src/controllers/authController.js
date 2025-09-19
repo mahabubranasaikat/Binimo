@@ -22,6 +22,10 @@ exports.login = (req, res) => {
         if (!bcrypt.compareSync(password, user.password_hash)) return res.status(401).json({ message: 'Invalid credentials' });
 
         const token = jwt.sign({ id: user.id, role: user.role }, 'your_secret_key');
-        res.json({ token });
+        res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
     });
+};
+
+exports.getMe = (req, res) => {
+    res.json({ id: req.user.id, username: req.user.username, role: req.user.role });
 };
