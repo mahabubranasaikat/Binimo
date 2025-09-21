@@ -4,6 +4,18 @@ const User = require('../models/User');
 
 exports.signup = (req, res) => {
     const { username, email, password } = req.body;
+
+    // Basic validation
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+    if (password.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ message: 'Invalid email format' });
+    }
+
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     User.create({ username, email, password_hash: hashedPassword, role: 'user' }, (err, result) => {
@@ -21,7 +33,7 @@ exports.login = (req, res) => {
         const user = results[0];
         if (!bcrypt.compareSync(password, user.password_hash)) return res.status(401).json({ message: 'Invalid credentials' });
 
-        const token = jwt.sign({ id: user.id, role: user.role }, 'your_secret_key');
+        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'your_secret_key');
         res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
     });
 };

@@ -38,20 +38,3 @@ class Product {
         });
     }
 
-    static findAll(callback) {
-        const sql = 'SELECT * FROM products WHERE status = "approved"';
-        db.query(sql, callback);
-    }
-
-    static findById(id, callback) {
-        const sql = 'SELECT * FROM products WHERE id = ?';
-        db.query(sql, [id], callback);
-    }
-
-    static updateStatus(id, status, callback) {
-        const sql = 'UPDATE products SET status = ? WHERE id = ?';
-        db.query(sql, [status, id], callback);
-    }
-}
-
-module.exports = Product;

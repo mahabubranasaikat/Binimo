@@ -22,5 +22,6 @@ A local buy-and-sell marketplace platform.
 1. Clone the repository
 2. Set up MySQL database and run schema.sql
 3. Install backend dependencies: `cd backend && npm install`
-4. Start backend: `cd backend && node server.js`
-5. Open frontend/index.html in browser
+4. Create a `.env` file in the backend directory with your database and JWT secret configurations
+5. Start backend: `cd backend && node server.js`
+6. Open frontend/index.html in browser

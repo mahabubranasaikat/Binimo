@@ -98,7 +98,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             alert('Login successful!');
         } else {
             const error = await response.json();
-            alert(error.message || 'Login failed');
+            alert(error.message || 'Login failed. Please check your credentials.');
         }
     } catch (error) {
         alert('Network error. Please try again.');
@@ -125,7 +125,7 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
             loginTab.show();
         } else {
             const error = await response.json();
-            alert(error.message || 'Sign up failed');
+            alert(error.message || 'Sign up failed. Please try again.');
         }
     } catch (error) {
         alert('Network error. Please try again.');

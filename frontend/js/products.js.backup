@@ -41,11 +41,7 @@ function loadProducts(products, append = false) {
         // Handle images (array or single)
         let images = [];
         try {
-            if (product.image_url) {
-                images = JSON.parse(product.image_url);
-            } else if (product.images) {
-                images = product.images;
-            }
+            images = product.images || (product.image_url ? [product.image_url] : []);
         } catch (e) {
             images = product.image_url ? [product.image_url] : [];
         }
@@ -282,14 +278,8 @@ function loadMoreProducts() {
     const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
     const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
     const condition = document.getElementById('condition').value;
+    const category = '';
     const sortBy = document.getElementById('sort-by').value;
-    
-    // Get current category filter from UI
-    let currentCategory = '';
-    const activeCategoryLink = document.querySelector('#categoryAccordion a.active, .category-card.active');
-    if (activeCategoryLink) {
-        currentCategory = activeCategoryLink.getAttribute('data-category') || '';
-    }
 
     let filtered = allProducts.filter(product => {
         const matchesSearch = product.title.toLowerCase().includes(searchTerm) ||
@@ -297,7 +287,7 @@ function loadMoreProducts() {
         const matchesLocation = !location || product.location.toLowerCase().includes(location);
         const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
         const matchesCondition = !condition || product.condition === condition;
-        const matchesCategory = !currentCategory || product.category === currentCategory;
+        const matchesCategory = !category || product.category === category;
         return matchesSearch && matchesLocation && matchesPrice && matchesCondition && matchesCategory;
     });
 
@@ -321,6 +311,7 @@ function loadMoreProducts() {
 
     loadProducts(filtered.slice(0, displayedProducts), true);
 }
+
 // Post Ad Modal
 document.getElementById('post-ad').addEventListener('click', () => {
     populateAdCategories();
@@ -422,6 +413,6 @@ $(document).on('click', function(e) {
 });
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
+function loadProducts() {
     fetchProducts();
-});
+}
