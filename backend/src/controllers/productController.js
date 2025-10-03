@@ -1,10 +1,18 @@
 const Product = require('../models/Product');
 
 exports.getProducts = (req, res) => {
-    Product.findAll((err, results) => {
-        if (err) return res.status(500).json({ message: 'Error fetching products' });
-        res.json(results);
-    });
+    const status = req.query.status;
+    if (status && req.user && req.user.role === 'admin') {
+        Product.findByStatus(status, (err, results) => {
+            if (err) return res.status(500).json({ message: 'Error fetching products' });
+            res.json(results);
+        });
+    } else {
+        Product.findAll((err, results) => {
+            if (err) return res.status(500).json({ message: 'Error fetching products' });
+            res.json(results);
+        });
+    }
 };
 
 exports.createProduct = (req, res) => {
@@ -35,5 +43,12 @@ exports.getProduct = (req, res) => {
     Product.findById(req.params.id, (err, results) => {
         if (err || results.length === 0) return res.status(404).json({ message: 'Product not found' });
         res.json(results[0]);
+    });
+};
+
+exports.getUserProducts = (req, res) => {
+    Product.findByUser(req.user.id, (err, results) => {
+        if (err) return res.status(500).json({ message: 'Error fetching products' });
+        res.json(results);
     });
 };

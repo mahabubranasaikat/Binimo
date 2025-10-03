@@ -22,14 +22,10 @@
                     </div>
                     <div id="search-suggestions" class="dropdown-menu w-100" style="display: none;"></div>
                 </div>
-                <div class="col-md-4 text-end">
-                     <select class="form-select d-inline-block w-auto me-2" id="language">
-                         <option value="en">EN</option>
-                         <option value="bn">BN</option>
-                     </select>
-                     <button class="btn btn-outline-light me-2" id="theme-toggle" title="Toggle Dark Mode">
-                         <i class="fas fa-moon"></i>
-                     </button>
+                 <div class="col-md-4 text-end">
+                      <button class="btn btn-outline-light me-2" id="theme-toggle" title="Toggle Dark Mode">
+                          <i class="fas fa-moon"></i>
+                      </button>
                      <button class="btn btn-success me-2" id="post-ad">Post Free Ad</button>
                      <div class="dropdown d-inline-block">
                          <button class="btn btn-outline-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
@@ -151,12 +147,17 @@
             </aside>
             <section class="col-md-6">
                 <h2>Available Products</h2>
-                <div class="mb-4 text-center">
-                    <img src="https://via.placeholder.com/300x250/28a745/ffffff?text=Square+Ad" alt="Square Ad" class="img-fluid">
-                </div>
-                <div id="product-list" class="row">
-                    <!-- Products will be loaded here -->
-                </div>
+                 <div class="mb-4 text-center">
+                     <img src="https://via.placeholder.com/300x250/28a745/ffffff?text=Square+Ad" alt="Square Ad" class="img-fluid">
+                 </div>
+                 <div id="loading" class="text-center my-4 d-none">
+                     <div class="spinner-border text-primary" role="status">
+                         <span class="visually-hidden">Loading...</span>
+                     </div>
+                 </div>
+                 <div id="product-list" class="row">
+                     <!-- Products will be loaded here -->
+                 </div>
             </section>
             <aside class="col-md-3">
                 <div class="mb-4">

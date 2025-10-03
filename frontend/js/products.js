@@ -3,6 +3,7 @@ let displayedProducts = 6;
 
 // Fetch products from API
 async function fetchProducts() {
+    document.getElementById('loading').classList.remove('d-none');
     try {
         const response = await fetch('/api/products');
         const products = await response.json();
@@ -12,6 +13,8 @@ async function fetchProducts() {
         console.error('Error fetching products:', error);
         // Fallback to demo if API fails
         loadDemoProducts();
+    } finally {
+        document.getElementById('loading').classList.add('d-none');
     }
 }
 
@@ -206,7 +209,7 @@ function loadCategories() {
 
 // Search and filter
 document.getElementById('search').addEventListener('input', () => filterProducts());
-document.querySelector('button[type="button"]').addEventListener('click', () => filterProducts());
+document.getElementById('search-btn').addEventListener('click', () => filterProducts());
 document.getElementById('apply-filters').addEventListener('click', () => filterProducts());
 document.getElementById('sort-by').addEventListener('change', () => filterProducts());
 
@@ -383,13 +386,16 @@ document.getElementById('post-ad-form').addEventListener('submit', async (e) => 
         });
         if (response.ok) {
             alert('Ad posted successfully!');
+            document.getElementById('post-ad-form').reset();
             bootstrap.Modal.getInstance(document.getElementById('postAdModal')).hide();
             fetchProducts(); // Refresh listings
         } else {
-            alert('Error posting ad');
+            const error = await response.json();
+            alert(error.message || 'Error posting ad');
         }
     } catch (error) {
         console.error('Error:', error);
+        alert('Network error. Please try again.');
     }
 });
 
@@ -421,7 +427,4 @@ $(document).on('click', function(e) {
     }
 });
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    fetchProducts();
-});
+// Initialize is handled in HTML

@@ -38,3 +38,38 @@ class Product {
         });
     }
 
+    static findByUser(userId, callback) {
+        const sql = 'SELECT *, JSON_UNQUOTE(image_url) as images FROM products WHERE user_id = ?';
+        db.query(sql, [userId], (err, results) => {
+            if (err) return callback(err);
+            results.forEach(product => {
+                try {
+                    product.images = product.image_url ? JSON.parse(product.image_url) : [];
+                } catch (e) {
+                    product.images = [];
+                }
+            });
+            callback(null, results);
+        });
+    }
+
+    static updateStatus(id, status, callback) {
+        const sql = 'UPDATE products SET status = ? WHERE id = ?';
+        db.query(sql, [status, id], callback);
+    }
+
+    static findByStatus(status, callback) {
+        const sql = 'SELECT *, JSON_UNQUOTE(image_url) as images FROM products WHERE status = ?';
+        db.query(sql, [status], (err, results) => {
+            if (err) return callback(err);
+            results.forEach(product => {
+                try {
+                    product.images = product.image_url ? JSON.parse(product.image_url) : [];
+                } catch (e) {
+                    product.images = [];
+                }
+            });
+            callback(null, results);
+        });
+    }
+

@@ -19,3 +19,10 @@ exports.getMessages = (req, res) => {
         res.json(results);
     });
 };
+
+exports.getUserMessages = (req, res) => {
+    Message.findByUser(req.user.id, (err, results) => {
+        if (err) return res.status(500).json({ message: 'Error fetching messages' });
+        res.json(results);
+    });
+};
