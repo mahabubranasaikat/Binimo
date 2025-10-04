@@ -26,6 +26,9 @@ body {
 header {
     background-color: var(--header-bg) !important;
     transition: background-color 0.3s;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
 }
 
 .hero {
@@ -141,6 +144,23 @@ footer {
 
     .category-icon {
         font-size: 1.5rem;
+    }
+
+    #product-list .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    #product-list .card {
+        margin-bottom: 1rem;
+    }
+
+    .hero h2 {
+        font-size: 1.5rem;
+    }
+
+    .stat-card h3 {
+        font-size: 1.2rem;
     }
 }
 

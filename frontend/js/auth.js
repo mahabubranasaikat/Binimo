@@ -155,9 +155,27 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 
 document.getElementById('signup-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const username = document.getElementById('signup-username').value;
-    const email = document.getElementById('signup-email').value;
+    const username = document.getElementById('signup-username').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
+
+    // Client-side validation
+    if (!username || !email || !password) {
+        alert('All fields are required.');
+        return;
+    }
+    if (username.length < 3) {
+        alert('Username must be at least 3 characters long.');
+        return;
+    }
+    if (password.length < 6) {
+        alert('Password must be at least 6 characters long.');
+        return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
 
     try {
         const response = await fetch('/api/auth/signup', {
@@ -165,6 +183,21 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password })
         });
+
+        if (response.ok) {
+            alert('Sign up successful! Please login.');
+            document.getElementById('signup-form').reset();
+            // Switch to login tab
+            const loginTab = new bootstrap.Tab(document.getElementById('login-tab'));
+            loginTab.show();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Sign up failed. Please try again.');
+        }
+    } catch (error) {
+        alert('Network error. Please try again.');
+    }
+});
 
         if (response.ok) {
             alert('Sign up successful! Please login.');

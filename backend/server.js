@@ -35,10 +35,15 @@ db.connect((err) => {
 });
 
 // Routes
-app.use('/api/auth', require('./src/routes/auth'));
-app.use('/api/products', require('./src/routes/products'));
-app.use('/api/admin', require('./src/routes/admin'));
-app.use('/api/messages', require('./src/routes/messages'));
+try {
+    app.use('/api/auth', require('./src/routes/auth'));
+    app.use('/api/products', require('./src/routes/products'));
+    app.use('/api/admin', require('./src/routes/admin'));
+    app.use('/api/messages', require('./src/routes/messages'));
+} catch (error) {
+    console.error('Error loading routes:', error);
+    process.exit(1);
+}
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

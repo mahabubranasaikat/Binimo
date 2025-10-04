@@ -6,6 +6,9 @@ async function fetchProducts() {
     document.getElementById('loading').classList.remove('d-none');
     try {
         const response = await fetch('/api/products');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const products = await response.json();
         allProducts = products;
         loadProducts(products.slice(0, displayedProducts));
@@ -100,6 +103,7 @@ function loadProducts(products, append = false) {
                         <span class="badge bg-${product.condition === 'new' ? 'success' : 'secondary'}">${product.condition}</span>
                         ${images.length > 1 ? `<small class="text-muted">${images.length} photos</small>` : ''}
                     </div>
+                    <button class="btn btn-outline-primary btn-sm mt-2" onclick="showProductDetails(${product.id})">View Details</button>
                 </div>
             </div>
         `;
@@ -364,6 +368,11 @@ function prevStep(step) {
 
 document.getElementById('post-ad-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Posting...';
+
     const formData = new FormData();
     formData.append('title', document.getElementById('ad-title').value);
     formData.append('category', document.getElementById('ad-category').value);
@@ -396,6 +405,9 @@ document.getElementById('post-ad-form').addEventListener('submit', async (e) => 
     } catch (error) {
         console.error('Error:', error);
         alert('Network error. Please try again.');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
     }
 });
 
@@ -426,5 +438,55 @@ $(document).on('click', function(e) {
         $('#search-suggestions').hide();
     }
 });
+
+// Show product details
+async function showProductDetails(productId) {
+    try {
+        const response = await fetch(`/api/products/${productId}`);
+        if (!response.ok) throw new Error('Product not found');
+        const product = await response.json();
+
+        let images = [];
+        try {
+            images = product.image_url ? JSON.parse(product.image_url) : [];
+        } catch (e) {
+            images = product.image_url ? [product.image_url] : [];
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('productModal'));
+        document.getElementById('product-modal-title').textContent = product.title;
+        document.getElementById('product-details-content').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    ${images.length > 0 ? `<img src="${images[0]}" class="img-fluid rounded" alt="${product.title}">` : '<div class="bg-light p-5 text-center rounded">No Image</div>'}
+                </div>
+                <div class="col-md-6">
+                    <h4>$${product.price}</h4>
+                    <p><strong>Category:</strong> ${product.category}</p>
+                    <p><strong>Location:</strong> ${product.location}</p>
+                    <p><strong>Condition:</strong> ${product.condition}</p>
+                    <p><strong>Description:</strong></p>
+                    <p>${product.description}</p>
+                    <button class="btn btn-success" onclick="contactSeller(${product.user_id})">Contact Seller</button>
+                </div>
+            </div>
+        `;
+        modal.show();
+    } catch (error) {
+        console.error('Error loading product details:', error);
+        alert('Error loading product details');
+    }
+}
+
+// Contact seller function
+function contactSeller(userId) {
+    // Assuming current user is logged in
+    if (!currentUser) {
+        alert('Please login to contact seller');
+        return;
+    }
+    // Open messages modal or redirect to chat
+    alert('Contact seller feature coming soon!');
+}
 
 // Initialize is handled in HTML

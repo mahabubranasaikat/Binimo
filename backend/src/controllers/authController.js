@@ -16,11 +16,22 @@ exports.signup = (req, res) => {
         return res.status(400).json({ message: 'Invalid email format' });
     }
 
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    // Check if user already exists
+    User.findByEmail(email, (err, results) => {
+        if (err) return res.status(500).json({ message: 'Error checking user' });
+        if (results.length > 0) return res.status(400).json({ message: 'Email already exists' });
 
-    User.create({ username, email, password_hash: hashedPassword, role: 'user' }, (err, result) => {
-        if (err) return res.status(500).json({ message: 'Error creating user' });
-        res.status(201).json({ message: 'User created successfully' });
+        User.findByUsername(username, (err, results) => {
+            if (err) return res.status(500).json({ message: 'Error checking user' });
+            if (results.length > 0) return res.status(400).json({ message: 'Username already exists' });
+
+            const hashedPassword = bcrypt.hashSync(password, 10);
+
+            User.create({ username, email, password_hash: hashedPassword, role: 'user' }, (err, result) => {
+                if (err) return res.status(500).json({ message: 'Error creating user' });
+                res.status(201).json({ message: 'User created successfully' });
+            });
+        });
     });
 };
 
