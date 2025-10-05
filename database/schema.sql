@@ -23,7 +23,7 @@ CREATE TABLE products (
     price DECIMAL(10,2) NOT NULL,
     category VARCHAR(50),
     location VARCHAR(100),
-    image_url VARCHAR(255),
+    image_url TEXT,
     `condition` ENUM('new', 'used') DEFAULT 'used',
     status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-exports.signup = (req, res) => {
+exports.signup = async (req, res) => {
     const { username, email, password } = req.body;
 
     // Basic validation
@@ -16,37 +16,53 @@ exports.signup = (req, res) => {
         return res.status(400).json({ message: 'Invalid email format' });
     }
 
-    // Check if user already exists
-    User.findByEmail(email, (err, results) => {
-        if (err) return res.status(500).json({ message: 'Error checking user' });
-        if (results.length > 0) return res.status(400).json({ message: 'Email already exists' });
-
-        User.findByUsername(username, (err, results) => {
-            if (err) return res.status(500).json({ message: 'Error checking user' });
-            if (results.length > 0) return res.status(400).json({ message: 'Username already exists' });
-
-            const hashedPassword = bcrypt.hashSync(password, 10);
-
-            User.create({ username, email, password_hash: hashedPassword, role: 'user' }, (err, result) => {
-                if (err) return res.status(500).json({ message: 'Error creating user' });
-                res.status(201).json({ message: 'User created successfully' });
-            });
+    try {
+        // Check if user already exists
+        const [emailResults] = await new Promise((resolve, reject) => {
+            User.findByEmail(email, (err, results) => err ? reject(err) : resolve([results]));
         });
-    });
+        if (emailResults.length > 0) return res.status(400).json({ message: 'Email already exists' });
+
+        const [usernameResults] = await new Promise((resolve, reject) => {
+            User.findByUsername(username, (err, results) => err ? reject(err) : resolve([results]));
+        });
+        if (usernameResults.length > 0) return res.status(400).json({ message: 'Username already exists' });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await new Promise((resolve, reject) => {
+            User.create({ username, email, password_hash: hashedPassword, role: 'user' }, (err, result) => err ? reject(err) : resolve(result));
+        });
+
+        res.status(201).json({ message: 'User created successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error creating user' });
+    }
 };
 
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
     const { email, password } = req.body;
 
-    User.findByEmail(email, (err, results) => {
-        if (err || results.length === 0) return res.status(401).json({ message: 'Invalid credentials' });
+    try {
+        const [results] = await new Promise((resolve, reject) => {
+            User.findByEmail(email, (err, results) => err ? reject(err) : resolve([results]));
+        });
+
+        if (results.length === 0) return res.status(401).json({ message: 'Invalid credentials' });
 
         const user = results[0];
-        if (!bcrypt.compareSync(password, user.password_hash)) return res.status(401).json({ message: 'Invalid credentials' });
+        const isValidPassword = await bcrypt.compare(password, user.password_hash);
+        if (!isValidPassword) return res.status(401).json({ message: 'Invalid credentials' });
 
-        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'your_secret_key');
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+            return res.status(500).json({ message: 'Server configuration error' });
+        }
+        const token = jwt.sign({ id: user.id, role: user.role }, jwtSecret);
         res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
-    });
+    } catch (error) {
+        res.status(500).json({ message: 'Error logging in' });
+    }
 };
 
 exports.getMe = (req, res) => {

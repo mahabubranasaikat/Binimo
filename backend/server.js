@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const cors = require('cors');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const app = express();
@@ -18,6 +19,14 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api/', limiter);
+
 // Database connection
 const db = mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
@@ -29,7 +38,7 @@ const db = mysql.createConnection({
 db.connect((err) => {
     if (err) {
         console.error('Database connection failed:', err);
-        process.exit(1);
+        throw new Error('Database connection failed');
     }
     console.log('Connected to MySQL database');
 });
@@ -42,7 +51,7 @@ try {
     app.use('/api/messages', require('./src/routes/messages'));
 } catch (error) {
     console.error('Error loading routes:', error);
-    process.exit(1);
+    throw new Error('Failed to load routes');
 }
 
 app.listen(PORT, () => {

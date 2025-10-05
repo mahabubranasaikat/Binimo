@@ -12,10 +12,8 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
     if (err) {
-        console.error('Error connecting to MySQL:', err);
-        return;
+        throw new Error('Error connecting to MySQL: ' + err.message);
     }
-    console.log('Connected to MySQL');
 
     // Read and execute schema
     const schemaPath = path.join(__dirname, '../database/schema.sql');
@@ -23,10 +21,8 @@ db.connect((err) => {
 
     db.query(schema, (err, results) => {
         if (err) {
-            console.error('Error executing schema:', err);
-            return;
+            throw new Error('Error executing schema: ' + err.message);
         }
-        console.log('Database schema initialized successfully');
 
         // Insert some sample data
         const sampleData = `
@@ -42,9 +38,7 @@ db.connect((err) => {
 
         db.query(sampleData, (err, results) => {
             if (err) {
-                console.error('Error inserting sample data:', err);
-            } else {
-                console.log('Sample data inserted successfully');
+                throw new Error('Error inserting sample data: ' + err.message);
             }
             db.end();
         });

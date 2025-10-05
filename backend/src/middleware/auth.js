@@ -4,7 +4,11 @@ const authenticateToken = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
     if (!token) return res.status(401).json({ message: 'Access denied' });
 
-    jwt.verify(token, process.env.JWT_SECRET || 'your_secret_key', (err, user) => {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+        return res.status(500).json({ message: 'Server configuration error' });
+    }
+    jwt.verify(token, jwtSecret, (err, user) => {
         if (err) return res.status(403).json({ message: 'Invalid token' });
         req.user = user;
         next();
