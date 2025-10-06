@@ -199,22 +199,6 @@ document.getElementById('signup-form').addEventListener('submit', async (e) => {
     }
 });
 
-        if (response.ok) {
-            alert('Sign up successful! Please login.');
-            // Clear form
-            document.getElementById('signup-form').reset();
-            // Switch to login tab
-            const loginTab = new bootstrap.Tab(document.getElementById('login-tab'));
-            loginTab.show();
-        } else {
-            const error = await response.json();
-            alert(error.message || 'Sign up failed. Please try again.');
-        }
-    } catch (error) {
-        alert('Network error. Please try again.');
-    }
-});
-
 // Admin functions
 async function approveProduct(id) {
     try {

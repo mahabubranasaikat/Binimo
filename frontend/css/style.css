@@ -137,6 +137,15 @@ footer {
         text-align: center;
     }
 
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero .btn-lg {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
     .category-card {
         height: 100px;
         margin-bottom: 1rem;
@@ -161,6 +170,15 @@ footer {
 
     .stat-card h3 {
         font-size: 1.2rem;
+    }
+
+    aside {
+        margin-bottom: 2rem;
+    }
+
+    .main-content {
+        padding-left: 15px;
+        padding-right: 15px;
     }
 }
 
@@ -212,4 +230,12 @@ footer {
 
 #product-list .card {
     animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
 }
+
+#product-list .card:nth-child(1) { animation-delay: 0.1s; }
+#product-list .card:nth-child(2) { animation-delay: 0.2s; }
+#product-list .card:nth-child(3) { animation-delay: 0.3s; }
+#product-list .card:nth-child(4) { animation-delay: 0.4s; }
+#product-list .card:nth-child(5) { animation-delay: 0.5s; }
+#product-list .card:nth-child(6) { animation-delay: 0.6s; }

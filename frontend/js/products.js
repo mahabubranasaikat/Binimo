@@ -63,11 +63,11 @@ function loadProducts(products, append = false) {
             imageHTML = `
                 <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner">
-                        ${images.map((img, index) => `
-                            <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                                <img src="${img}" class="d-block w-100" alt="${product.title}" style="height: 200px; object-fit: cover;">
-                            </div>
-                        `).join('')}
+                         ${images.map((img, index) => `
+                             <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                 <img src="${img}" class="d-block w-100" alt="${product.title}" style="height: 200px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/250x150/cccccc/666666?text=No+Image'">
+                             </div>
+                         `).join('')}
                     </div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -80,7 +80,7 @@ function loadProducts(products, append = false) {
                 </div>
             `;
         } else {
-            imageHTML = `<img src="${imageUrl}" class="card-img-top" alt="${product.title}" style="height: 200px; object-fit: cover;">`;
+            imageHTML = `<img src="${imageUrl}" class="card-img-top" alt="${product.title}" style="height: 200px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/250x150/cccccc/666666?text=No+Image'">`;
         }
 
         const productDiv = document.createElement('div');
@@ -242,44 +242,56 @@ document.getElementById('get-location').addEventListener('click', () => {
 });
 
 function filterProducts(extraFilters = {}) {
-    const searchTerm = document.getElementById('search').value.toLowerCase();
-    const location = document.getElementById('location').value.toLowerCase();
-    const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
-    const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
-    const condition = document.getElementById('condition').value;
-    const category = extraFilters.category || '';
-    const sortBy = document.getElementById('sort-by').value;
+    // Show loading
+    const productList = document.getElementById('product-list');
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'filter-loading';
+    loadingDiv.className = 'text-center my-4';
+    loadingDiv.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+    productList.innerHTML = '';
+    productList.appendChild(loadingDiv);
 
-    let filtered = allProducts.filter(product => {
-        const matchesSearch = product.title.toLowerCase().includes(searchTerm) ||
-                              product.description.toLowerCase().includes(searchTerm);
-        const matchesLocation = !location || product.location.toLowerCase().includes(location);
-        const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
-        const matchesCondition = !condition || product.condition === condition;
-        const matchesCategory = !category || product.category === category;
-        return matchesSearch && matchesLocation && matchesPrice && matchesCondition && matchesCategory;
-    });
+    // Small delay to show loading spinner
+    setTimeout(() => {
+        const searchTerm = document.getElementById('search').value.toLowerCase();
+        const location = document.getElementById('location').value.toLowerCase();
+        const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+        const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+        const condition = document.getElementById('condition').value;
+        const category = extraFilters.category || '';
+        const sortBy = document.getElementById('sort-by').value;
 
-    // Sort the filtered results
-    if (sortBy) {
-        filtered.sort((a, b) => {
-            switch (sortBy) {
-                case 'price-asc':
-                    return a.price - b.price;
-                case 'price-desc':
-                    return b.price - a.price;
-                case 'date-desc':
-                    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-                case 'category':
-                    return (a.category || '').localeCompare(b.category || '');
-                default:
-                    return 0;
-            }
+        let filtered = allProducts.filter(product => {
+            const matchesSearch = product.title.toLowerCase().includes(searchTerm) ||
+                                  product.description.toLowerCase().includes(searchTerm);
+            const matchesLocation = !location || product.location.toLowerCase().includes(location);
+            const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
+            const matchesCondition = !condition || product.condition === condition;
+            const matchesCategory = !category || product.category === category;
+            return matchesSearch && matchesLocation && matchesPrice && matchesCondition && matchesCategory;
         });
-    }
 
-    displayedProducts = 6; // Reset for new filter
-    loadProducts(filtered.slice(0, displayedProducts));
+        // Sort the filtered results
+        if (sortBy) {
+            filtered.sort((a, b) => {
+                switch (sortBy) {
+                    case 'price-asc':
+                        return a.price - b.price;
+                    case 'price-desc':
+                        return b.price - a.price;
+                    case 'date-desc':
+                        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                    case 'category':
+                        return (a.category || '').localeCompare(b.category || '');
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        displayedProducts = 6; // Reset for new filter
+        loadProducts(filtered.slice(0, displayedProducts));
+    }, 300);
 }
 
 function loadMoreProducts() {
@@ -458,7 +470,7 @@ async function showProductDetails(productId) {
         document.getElementById('product-details-content').innerHTML = `
             <div class="row">
                 <div class="col-md-6">
-                    ${images.length > 0 ? `<img src="${images[0]}" class="img-fluid rounded" alt="${product.title}">` : '<div class="bg-light p-5 text-center rounded">No Image</div>'}
+                    ${images.length > 0 ? `<img src="${images[0]}" class="img-fluid rounded" alt="${product.title}" onerror="this.src='https://via.placeholder.com/400x300/cccccc/666666?text=No+Image'">` : '<div class="bg-light p-5 text-center rounded">No Image</div>'}
                 </div>
                 <div class="col-md-6">
                     <h4>$${product.price}</h4>
